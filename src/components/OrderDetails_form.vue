@@ -11,10 +11,10 @@ const store = useOrderStore()
 
 const firstName = computed(() => order.value?.user?.firstName + ' ' +order.value?.user?.lastName  || '');
 const email = computed(() => order.value?.user?.email || '');
-const OrderDate = computed(() => order.value?.user?.createdAt || '');
+const OrderDate = computed(() => order.value?.createdAt || '');
 const numberOfItems = computed(() => order.value?.items?.length || 0);
 const address = computed(() => order.value?.shippingAddress || '');
-const paymentMethod = computed(() => order.value?.paymentInfo?.method || '');
+const paymentMethod = computed(() => order.value?.paymentMethod || '');
 const orderPrice = computed(() => order.value?.totalPriceOrder || 0);
 const status = computed(() => order.value?.status || '');
 
