@@ -6,7 +6,7 @@
         <v-sheet width="100%" class="text-start py-2 pl-5 pr-5 rounded-lg" style="border:solid 1px #80CCF9">
             <slot name="partTwo">Default content if nothing is passed</slot>
         </v-sheet>
-        </div>
+        </div> 
         
      <div class="d-flex flex-column" style="width: 50%;" >
         <div class="mb-4 " >

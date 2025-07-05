@@ -13,7 +13,7 @@ const props = defineProps({
 <template>
     <div class="d-flex rounded-xl align-center" style="width:90%; gap:20px; background-color:#F3F3F3; padding: 25px;">
         <v-img
-           :src="item.product.images[0]"
+           :src="item.product.imageUrl"
             alt="Selected Image"
             class="image-placeholder rounded-xl"
             cover
