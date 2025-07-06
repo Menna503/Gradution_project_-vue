@@ -140,7 +140,7 @@ function onAgree() {
             <template v-else-if="col.name === 'imageUrl'">
               <v-avatar size="80" rounded="0">
                 <img
-                  :src="item.imageUrl[0]"
+                  :src="item.imageUrl"
                   style="
                     border-radius: 2px;
                     width: 100%;
