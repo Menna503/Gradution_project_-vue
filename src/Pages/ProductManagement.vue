@@ -113,6 +113,7 @@ watch([searchterm, Filterterm], () => {
           :itemsPerPage="itemperpage"
           :page="paginationdata.page.value"
           modaltext="Are you sure you want to delete this product?"
+          type="products"
         />
       </template>
       <template #partfour>

@@ -1,20 +1,17 @@
 <script setup>
-// import { defineProps } from "vue";
 import { RouterLink } from "vue-router";
-import { id } from "vuetify/locale";
 import Allordersnew from "./allordersnew.vue";
+import { ref, defineProps, defineEmits } from "vue";
 import {
   VDialog,
   VCard,
-  VCardActions,
   VSpacer,
   VBtn,
   VIcon,
   VTooltip,
+  VAvatar,
+  VSelect,
 } from "vuetify/components";
-
-// import Modal from "./modal.vue";
-import { ref, defineProps, defineEmits } from "vue";
 
 const props = defineProps({
   columns: Array,
@@ -27,24 +24,19 @@ const props = defineProps({
   page: Number,
   imgsearch: String,
   nosearch: String,
-  titlenodata: String,
   modaltext: String,
+  type: String, // "customer" or "orders"
 });
+
+const emit = defineEmits(["click", "delete", "status-update"]);
+const dialog = ref(false);
 const selectedItem = ref(null);
 
-const selectrole = ["Pendding", "arrived", "canceled"];
-
-const emit = defineEmits(["click", "delete"]);
-const dialog = ref(false);
-
-function clickitem(item) {
-  emit("click", item._id);
-}
-
-function onAgree() {
-  emit("delete", selectedItem.value._id);
-  dialog.value = false;
-}
+const orderStatusOptions = [
+  { title: " Processing", value: "processing" },
+  { title: "Shipped", value: "shipped" },
+  { title: " Delivered", value: "delivered" },
+];
 </script>
 
 <template>
@@ -70,73 +62,67 @@ function onAgree() {
         >
           <td
             v-for="col in columns"
-            :key="col.Id"
-            class="text-center font-weight-semibold text-neutral cursor-default pa-0 px-4"
-            style="font-size: 16px; margin-bottom: 20px"
+            :key="col.name"
+            class="text-center font-weight-semibold pa-0 px-4"
+            style="font-size: 16px"
           >
-            <template v-if="col.name === 'status'">
-              <span
-                class="text-center d-inline-block pa-2 rounded-lg cursor-default"
-                style="width: 80px"
-                :class="{
-                  'text-success bg-error  ':
-                    item[col.name] === 'Blocked' ||
-                    item[col.name] === 'Cancelled',
-                  ' text-success bg-lightGray ':
-                    item[col.name] === 'active' ||
-                    item[col.name] === 'Delivered',
-                  'text-success bg-warning  ':
-                    item[col.name] === 'vip' || item[col.name] === 'shipping',
-                  'text-success bg-blocked  ':
-                    item[col.name] === 'inactive' ||
-                    item[col.name] === 'pending',
-                }"
-              >
-                {{ item[col.name] }}
-              </span>
+            <!-- ✅ Order Status as Dropdown -->
+            <template v-if="col.name === 'status' && type === 'orders'">
+              <v-select
+                v-model="item.status"
+                :items="orderStatusOptions"
+                item-title="title"
+                item-value="value"
+                variant="outlined"
+                density="compact"
+                hide-details
+                hide-no-data
+                style="width: 120px"
+                @update:modelValue="$emit('status-update', item)"
+              />
             </template>
+
+            <!-- ✅ Customer Status as Colored Badge -->
             <template v-else-if="col.name === 'status'">
               <span
+                class="d-inline-block pa-2 rounded-lg text-success"
+                style="width: 80px"
                 :class="{
-                  'text-primary': item[col.name] === 'inactive',
-                  'bg-primary': item[col.name] === 'inactive',
+                  'bg-error': ['Blocked', 'Cancelled'].includes(item.status),
+                  'bg-lightGray': ['active', 'Delivered'].includes(item.status),
+                  'bg-warning': ['vip', 'shipping'].includes(item.status),
+                  'bg-blocked': ['inactive', 'pending'].includes(item.status),
                 }"
               >
                 {{ item[col.name] }}
               </span>
             </template>
-            <template v-else-if="col.name === 'Set Status'">
-              <div class="d-flex justify-center rounded-lg">
-                <v-select
-                  v-model="item.Role"
-                  :items="selectrole"
-                  variant="outlined"
-                  hide-details
-                  hide-no-data
-                  single-line
-                  color="#1E88E5"
-                  class="role-autocomplete"
-                  density="comfortable"
-                ></v-select>
-              </div>
-            </template>
+
+            <!-- Auto index -->
             <template v-else-if="col.name === '_id'">
               {{ (page - 1) * itemsPerPage + (index + 1) }}
             </template>
-            <template v-else-if="col.name === 'Orders'">
-              <Allordersnew :id="item._id" />
-            </template>
+
+            <!-- Order details link -->
             <template v-else-if="col.name === 'Order'">
               <RouterLink :to="`/OrderDetails/${item._id}`">
                 <button>📦 Details</button>
               </RouterLink>
             </template>
+
+            <!-- Popup for customer's orders -->
+            <template v-else-if="col.name === 'Orders'">
+              <Allordersnew :id="item._id" />
+            </template>
+
+            <!-- Price formatting -->
             <template
               v-else-if="col.name === 'Total Price' || col.name === 'price'"
             >
               {{ item[col.name] }}<span> EGP</span>
             </template>
-            <!--  -->
+
+            <!-- Image -->
             <template v-else-if="col.name === 'imageUrl'">
               <v-avatar size="80" rounded="0">
                 <img
@@ -151,7 +137,13 @@ function onAgree() {
                 />
               </v-avatar>
             </template>
-            <!--  -->
+
+            <!-- Category -->
+            <template v-else-if="col.name === 'category'">
+              {{ item[col.name]?.name }}
+            </template>
+
+            <!-- Action Buttons -->
             <template v-else-if="col.name === 'Action'">
               <div class="d-flex justify-center" style="gap: 16px">
                 <v-tooltip>
@@ -160,11 +152,12 @@ function onAgree() {
                       v-bind="props"
                       v-if="icon1"
                       size="24"
-                      :key="item.Id"
-                      @click="clickitem(item)"
+                      :key="item._id"
+                      @click="$emit('click', item._id)"
                       class="text-primary cursor-pointer"
-                      >{{ icon1 }}</v-icon
                     >
+                      {{ icon1 }}
+                    </v-icon>
                   </template>
                   {{ titleicon1 }}
                 </v-tooltip>
@@ -176,8 +169,8 @@ function onAgree() {
                         <v-icon
                           v-if="icon2"
                           size="24"
-                          :key="item.Id"
-                          @click="selectedItem=item"
+                          :key="item._id"
+                          @click="selectedItem = item"
                           class="text-error cursor-pointer"
                           v-bind="{ ...activatorProps, ...tooltipProps }"
                           v-on="on"
@@ -193,29 +186,37 @@ function onAgree() {
                     <template #actions>
                       <v-spacer />
                       <v-btn @click="dialog = false">Disagree</v-btn>
-                      <v-btn @click="onAgree()">Agree</v-btn>
+                      <v-btn
+                        @click="
+                          $emit('delete', selectedItem._id);
+                          dialog = false;
+                        "
+                        >Agree</v-btn
+                      >
                     </template>
                   </v-card>
                 </v-dialog>
               </div>
             </template>
-            <template v-else-if="col.name === 'category'">
-              {{ item[col.name].name }}
-            </template>
+
+            <!-- Default Text -->
             <template v-else>
               {{ item[col.name] }}
             </template>
           </td>
         </tr>
       </template>
+
+      <!-- No Data Fallback -->
       <template v-else>
         <tr>
           <td :colspan="columns.length" class="text-center pa-8 bg-success">
-            <img :src="imgsearch" class="pt-10" style="width: 200px;" />
+            <img :src="imgsearch" class="pt-10" style="width: 200px" />
             <v-item-title
               class="d-block text-primary font-weight-bold text-h5 pt-5"
-              >{{ nosearch }}</v-item-title
             >
+              {{ nosearch }}
+            </v-item-title>
           </td>
         </tr>
       </template>
@@ -223,6 +224,8 @@ function onAgree() {
   </v-table>
 </template>
 
-<style lang="scss" scoped>
-
+<style scoped>
+.custom-table {
+  margin-top: 16px;
+}
 </style>

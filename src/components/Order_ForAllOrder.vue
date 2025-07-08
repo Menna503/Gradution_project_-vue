@@ -12,7 +12,7 @@ const props = defineProps({
       </h6>
 
       <h6 class="text-primary font-weight-regular" style="font-size: 20px">
-        {{ item.items.length }} Items
+        {{ item.items?.length }} Items
       </h6>
       <h6 class="text-primary font-weight-regular" style="font-size: 20px">
         Total Price :{{ item.totalPriceOrder }} EGP

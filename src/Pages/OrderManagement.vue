@@ -61,6 +61,17 @@ watch([searchterm, Filterterm], () => {
     paginationdata.page.value = 1;
   });
 });
+
+async function updateOrderStatus(order) {
+  try {
+    await ordertStore.updateOrderById(order._id, { status: order.status }); // ✅ بس status
+    showtoast("Order status updated successfully", "success");
+  } catch (err) {
+    showtoast("Failed to update order status", "error");
+  }
+}
+
+
 </script>
 
 <template>
@@ -87,6 +98,8 @@ watch([searchterm, Filterterm], () => {
           imgsearch="/no order.png"
           :itemsPerPage="itemperpage"
           :page="paginationdata.page.value"
+           type="orders"
+            @status-update="updateOrderStatus"
         />
       </template>
       <template #partfour>

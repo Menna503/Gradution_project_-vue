@@ -1,11 +1,9 @@
-// src/store/OrderStore.js
 import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useOrderStore = defineStore('CRUD', () => {
   const token = localStorage.getItem("token");
- 
 
   const alldata      = ref([]);
   const status       = ref('idle');
@@ -15,12 +13,13 @@ export const useOrderStore = defineStore('CRUD', () => {
   const newProducts  = ref(0);
   const newCustomers = ref(0);
 
-  const fetchOrders = async (filter={}) => {
-          status.value = 'loading';
+  const fetchOrders = async (filter = {}) => {
+    status.value = 'loading';
 
     try {
-            const params = new URLSearchParams();
+      const params = new URLSearchParams();
       if (filter.status) params.append('status', filter.status);
+
       const url = params.toString()
         ? `/api/orders?${params}`
         : `/api/orders`;
@@ -29,8 +28,7 @@ export const useOrderStore = defineStore('CRUD', () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-    console.log(response)
-      alldata.value = response.data.data.map(order => ({
+      alldata.value = response.data.orders.map(order => ({
         _id: order._id,
         firstName: order.user?.firstName,
         lastName: order.user?.lastName,
@@ -40,16 +38,14 @@ export const useOrderStore = defineStore('CRUD', () => {
         status: order.status,
       }));
 
-      
       const payload = {
-        data:         response.data.data,
+        data:         response.data.orders,
         totalRevenue: response.data.totalRevenue,
-        totalOrders:  response.data.NumberOfOrders,
+        totalOrders:  response.data.numberOfOrders,
         newProducts:  response.data.newProduct,
         newCustomers: response.data.newCustomers,
       };
 
-      
       totalRevenue.value = payload.totalRevenue;
       totalOrders.value  = payload.totalOrders;
       newProducts.value  = payload.newProducts;
@@ -71,7 +67,7 @@ export const useOrderStore = defineStore('CRUD', () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       status.value = 'success';
-      return response.data.result;
+      return response.data.order;
     } catch (err) {
       console.error('Failed to fetch order by ID:', err);
       status.value = 'error';
@@ -79,9 +75,32 @@ export const useOrderStore = defineStore('CRUD', () => {
     }
   };
 
+  const updateOrderById = async (id, updatedOrder) => {
+    try {
+      const response = await axios.patch(
+        `/api/orders/${id}`,
+        { status: updatedOrder.status },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const index = alldata.value.findIndex((order) => order._id === id);
+      if (index !== -1) {
+        alldata.value[index].status = updatedOrder.status;
+      }
+
+      return response.data;
+    } catch (err) {
+      console.error("Failed to update order:", err);
+      throw err;
+    }
+  };
+
   return {
     fetchOrders,
     fetchOrderById,
+    updateOrderById,
     alldata,
     datalength,
     status,

@@ -1,4 +1,6 @@
-Okay, here's the complete code with the `category` field disabled in edit mode, and the `size_range` functionality included as discussed.
+Sure, here is the complete code for your Vue.js component, incorporating the refined logic to ensure that sizes and quantities are correctly displayed and populated when you are in edit mode.
+
+The most crucial change is within the `onMounted` hook, where `await nextTick()` is strategically placed after setting the `SelectedCategory`. This ensures that the `currentSizes` computed property has fully updated based on the product's category before the `selectedSizesWithQuantities` object is initialized and populated with the product's saved data.
 
 ```vue
 <template>
@@ -312,7 +314,8 @@ Okay, here's the complete code with the `category` field disabled in edit mode, 
             clearable
             style="width: 100%"
             class="pa-0"
-            :disabled="mood === 'edit'" />
+            :disabled="mood === 'edit'"
+          />
         </v-card-text>
       </div>
 
@@ -417,8 +420,8 @@ import axios from "axios";
 const brandOptions = ["Nike", "Adidas", "Puma", "Reebok", "Under Armour"];
 
 // Available sizes for products
-const clothingSizes = ["S", "M", "L", "XL", "XXL"]; // أحجام الملابس
-const shoeSizes = ["3", "4", "5", "6", "7"]; // أحجام الأحذية حتى 7 فقط
+const clothingSizes = ["S", "M", "L", "XL", "XXL"];
+const shoeSizes = ["3", "4", "5", "6", "7"];
 // Available gender options
 const genders = ["women", "men"];
 
@@ -436,7 +439,7 @@ const supplementCategoryId = ref(null);
 // Stores the ID for the 'Equipment' category, fetched dynamically
 const equipmentCategoryId = ref(null);
 // Stores the ID for the 'Shoes' category, fetched dynamically
-const shoesCategoryId = ref(null); // <--- New: for Shoes category ID
+const shoesCategoryId = ref(null);
 
 // Reactive variable for the total product stock (used for Supplement/Equipment)
 const Product_Stock = ref(null);
@@ -463,7 +466,6 @@ onMounted(async () => {
     if (equipmentCat) {
       equipmentCategoryId.value = equipmentCat._id;
     }
-    // <--- New: Find and store the ID for 'Shoes' category
     const shoesCat = categories.value.find(cat => cat.name.toLowerCase() === 'shoes');
     if (shoesCat) {
       shoesCategoryId.value = shoesCat._id;
@@ -479,7 +481,7 @@ const isClothesCategorySelected = computed(() => {
 });
 
 // Computed property to check if the 'Shoes' category is currently selected
-const isShoesCategorySelected = computed(() => { // <--- New computed property
+const isShoesCategorySelected = computed(() => {
   return SelectedCategory.value === shoesCategoryId.value;
 });
 
@@ -495,27 +497,29 @@ const isSupplementOrEquipmentCategorySelected = computed(() => {
 const currentSizes = computed(() => {
   if (isShoesCategorySelected.value) {
     return shoeSizes;
-  } else if (isClothesCategorySelected.value) { // Assuming other categories use clothing sizes, adjust as needed
+  } else if (isClothesCategorySelected.value) {
     return clothingSizes;
   } else {
-    // If neither Shoes nor Clothes, or if sizes are not relevant, return an empty array or default to clothing sizes
-    return clothingSizes; // Or [] if sizes shouldn't be shown at all
+    // Default to clothing sizes if no specific category matches
+    // This is important for initial setup or if category hasn't been chosen yet
+    return clothingSizes;
   }
 });
 
 // Reactive variable to store selected sizes with their quantities.
-// نستخدم كائن هنا لتسهيل الوصول للأحجام بالاسم بدلاً من الفهرس
 const selectedSizesWithQuantities = ref({});
 
 // Watcher to re-initialize selectedSizesWithQuantities when currentSizes changes
+// This ensures the size options presented match the selected category
 watch(currentSizes, (newSizes) => {
   const newSelectedSizes = {};
   newSizes.forEach(size => {
     // Keep existing quantity/selection if size remains in the new list, otherwise reset
+    // This maintains selected sizes if switching between, say, Clothes and Shoes
     newSelectedSizes[size] = selectedSizesWithQuantities.value[size] || { size, quantity: 0, selected: false };
   });
   selectedSizesWithQuantities.value = newSelectedSizes;
-}, { immediate: true }); // Run immediately on component mount
+}, { immediate: true }); // Run immediately on component mount to set up initial sizes
 
 // Watch for changes in the selected category to adjust form fields
 watch(SelectedCategory, async (newValue) => {
@@ -524,9 +528,7 @@ watch(SelectedCategory, async (newValue) => {
     SelectedSubcategory.value = null;
   }
   // If 'Supplement' or 'Equipment' category is selected, reset sizes and genders
-  // Also, if not 'Supplement' or 'Equipment', reset Product_Stock
   if (isSupplementOrEquipmentCategorySelected.value) {
-    // Clear all size selections and quantities
     Object.values(selectedSizesWithQuantities.value).forEach(item => {
       item.selected = false;
       item.quantity = 0;
@@ -537,17 +539,8 @@ watch(SelectedCategory, async (newValue) => {
     // Reset Product_Stock if category is NOT Supplement/Equipment
     Product_Stock.value = null;
   }
-
-  // Ensure selectedSizesWithQuantities is correctly initialized for the new category
-  // We already have a watcher on `currentSizes` for this, but adding nextTick here
-  // ensures the currentSizes computed property has updated before populating data
-  await nextTick();
-  // Re-initialize based on the new `currentSizes`
-  const tempSizes = {};
-  currentSizes.value.forEach(size => {
-    tempSizes[size] = { size, quantity: 0, selected: false };
-  });
-  selectedSizesWithQuantities.value = tempSizes;
+  // No need to explicitly re-initialize selectedSizesWithQuantities here,
+  // as the `currentSizes` watcher will handle it reactivey after `SelectedCategory` updates.
 });
 
 
@@ -659,7 +652,7 @@ watchEffect(() => {
 // On component mount, check if in edit mode and populate form fields
 onMounted(async () => {
   const id = route.params.id;
-  productStore.fetchProducts(); // Fetch all products (could be optimized)
+  await productStore.fetchProducts(); // Ensure products are fetched, especially for `fetchProductById`
 
   if (id) {
     console.log(`Fetching product with ID: ${id}`);
@@ -673,48 +666,60 @@ onMounted(async () => {
     // Ensure colors is always an array
     colors.value = Array.isArray(prod.color) ? prod.color : (prod.color ? [prod.color] : []);
 
+    // Set the category FIRST. This will trigger the `SelectedCategory` watcher.
     SelectedCategory.value = prod.category?._id || null;
-    // Wait for SelectedCategory to update currentSizes before populating selectedSizesWithQuantities
+
+    // VERY IMPORTANT: Wait for Vue to fully process the reactivity of SelectedCategory
+    // and for `currentSizes` to update based on the correct category before proceeding.
     await nextTick();
 
-    // Populate sizes, genders, or stock based on the product's category
-    if (prod.category && (prod.category._id === supplementCategoryId.value || prod.category._id === equipmentCategoryId.value)) {
-        // If Supplement or Equipment, clear sizes/genders and populate Product_Stock
-        Object.values(selectedSizesWithQuantities.value).forEach(item => {
-            item.selected = false;
-            item.quantity = 0;
-        });
-        selectedGenders.value = [];
-        Product_Stock.value = prod.stock || null; // Assuming 'stock' field holds the total quantity
-        size_range.value = []; // Clear size_range
+    // Now, `currentSizes.value` will correctly reflect if it's clothing or shoes.
+    // Proceed with populating sizes and quantities based on the product's category.
+    if (isSupplementOrEquipmentCategorySelected.value) {
+      // If Supplement or Equipment, clear sizes/genders and populate Product_Stock
+      // The `currentSizes` watcher might have initialized, but we reset here
+      // as stock_by_size is not relevant for this category.
+      Object.values(selectedSizesWithQuantities.value).forEach(item => {
+          item.selected = false;
+          item.quantity = 0;
+      });
+      selectedGenders.value = [];
+      Product_Stock.value = prod.stock || null; // Assuming 'stock' field holds the total quantity
+      size_range.value = []; // Clear size_range
     } else {
-        // For other categories, populate sizes and genders
-        if (prod.stock_by_size) { // Check if stock_by_size exists and is an object
-            // Iterate over the current set of sizes
-            currentSizes.value.forEach((size) => {
-                if (prod.stock_by_size[size] !== undefined) {
-                    selectedSizesWithQuantities.value[size] = {
-                        size: size,
-                        selected: true,
-                        quantity: prod.stock_by_size[size]
-                    };
-                }
-            });
-        }
-        selectedGenders.value = Array.isArray(prod.gender)
-            ? prod.gender.map((g) => genders.indexOf(g))
-            : [];
-        // Clear Product_Stock if category is not Supplement/Equipment
-        Product_Stock.value = null;
+      // For other categories (Clothes, Shoes), populate sizes and genders
+      // Re-initialize `selectedSizesWithQuantities` based on `currentSizes` again,
+      // ensuring we have all relevant sizes for the UI display, even if they weren't in `stock_by_size`.
+      const tempSelectedSizes = {};
+      currentSizes.value.forEach(size => {
+          tempSelectedSizes[size] = { size, quantity: 0, selected: false };
+      });
+      selectedSizesWithQuantities.value = tempSelectedSizes; // Assign the new object
 
-        // Populate size_range based on existing product data
-        if (prod.size_range && Array.isArray(prod.size_range)) {
-          size_range.value = prod.size_range;
-        } else {
-          size_range.value = Object.keys(prod.stock_by_size || {});
-        }
+      // Now, populate with actual data from `prod.stock_by_size`
+      if (prod.stock_by_size) {
+          for (const size in prod.stock_by_size) {
+              if (selectedSizesWithQuantities.value[size]) { // Only if the size exists in `currentSizes`
+                  selectedSizesWithQuantities.value[size].selected = true;
+                  selectedSizesWithQuantities.value[size].quantity = prod.stock_by_size[size];
+              }
+          }
+      }
+
+      selectedGenders.value = Array.isArray(prod.gender)
+          ? prod.gender.map((g) => genders.indexOf(g))
+          : [];
+      Product_Stock.value = null; // Ensure stock is cleared if category is not Supplement/Equipment
+
+      // Populate size_range based on existing product data
+      if (prod.stock_by_size) {
+        size_range.value = Object.keys(prod.stock_by_size).sort();
+      } else if (prod.size_range && Array.isArray(prod.size_range)) {
+        size_range.value = prod.size_range.sort();
+      } else {
+        size_range.value = [];
+      }
     }
-
 
     // Set subcategory if 'Clothes' is selected and subCategory exists
     if (prod.category && prod.category.name && prod.category.name.toLowerCase() === 'clothes' && prod.subCategory) {
@@ -815,19 +820,14 @@ const hasproductchange = () => {
   console.log("New payload for comparison:", newpayload);
   const oldpayload = initialData.value;
 
-  // --- START OF FIX: Handle oldPayloadSizesFormatted to prevent "object is not iterable" error ---
   let oldPayloadSizesFormatted;
   if (oldpayload.stock_by_size instanceof Map) {
-    // If it's truly a Map, convert it to a plain object
     oldPayloadSizesFormatted = Object.fromEntries(oldpayload.stock_by_size);
   } else if (typeof oldpayload.stock_by_size === 'object' && oldpayload.stock_by_size !== null) {
-    // If it's already a plain object, use it directly
     oldPayloadSizesFormatted = oldpayload.stock_by_size;
   } else {
-    // Default to an empty object if undefined or null
     oldPayloadSizesFormatted = {};
   }
-  // --- END OF FIX ---
 
   let oldPayloadSizeRange = Array.isArray(oldpayload.size_range) ? oldpayload.size_range.sort() : [];
   if (!oldPayloadSizeRange.length && oldpayload.stock_by_size) {
@@ -839,15 +839,15 @@ const hasproductchange = () => {
     name: oldpayload.name,
     brand: oldpayload.brand,
     price: oldpayload.price,
-    color: oldpayload.color, // Assuming oldpayload.color is already an array or comparable
+    color: oldpayload.color,
     material: oldpayload.material,
-    stock_by_size: oldPayloadSizesFormatted, // Use the correctly formatted object
+    stock_by_size: oldPayloadSizesFormatted,
     stock: oldpayload.stock,
     category: oldpayload.category?._id,
     gender: oldpayload.gender,
     imageUrl: oldpayload.imageUrl,
     subCategory: oldpayload.subCategory,
-    size_range: oldPayloadSizeRange, // Use the correctly formatted and sorted size_range
+    size_range: oldPayloadSizeRange,
   };
 
   console.log("Old payload for comparison:", oldFormattedPayload);

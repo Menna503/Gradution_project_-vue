@@ -8,7 +8,7 @@ import { useCustomerStore } from '../store/CustomerStore';
 import axios from 'axios';
 
 const status = ref('');
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // تم تقصيره للاختصار
+const token = localStorage.getItem("token");
 
 const carddata = ref(null);
 const results = ref(0);

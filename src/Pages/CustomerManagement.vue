@@ -26,7 +26,7 @@ const Customercolumns = ref([
   { name: "role", label: "Role" },
   { name: "status", label: "Status" },
   { name: "Orders", label: "Orders" },
-  { name: "Action", label: "Action" },
+ 
 ]);
 const filteroption = ref([
   { name: "", title: "All" },
@@ -66,6 +66,12 @@ async function handleClick(id) {
     showtoast("Customer removed successfully", "error");
 
 }
+function updateCustomerStatus(customer) {
+  customerstore.updateuserbyid(customer._id, customer).then(() => {
+    showtoast("Customer status updated", "success");
+  });
+}
+
 </script>
 
 <template>
@@ -99,6 +105,7 @@ async function handleClick(id) {
         :itemsPerPage="itemperpage"
         :page="paginationdata.page.value"
         modaltext="Are you sure you want to make this customer Admin?"
+         @status-update="updateCustomerStatus"
       />
     </template>
     <template #partfour>
