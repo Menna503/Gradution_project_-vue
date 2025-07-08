@@ -2,7 +2,7 @@ import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-export const useCustomerStore = defineStore('CRUD', () => {
+export const useCustomerStore = defineStore('customer', () => {
   const token = localStorage.getItem("token");
   const alldata = ref([]);// all customer 
   // variable for data by id

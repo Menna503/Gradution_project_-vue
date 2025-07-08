@@ -2,7 +2,7 @@ import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-export const useOrderStore = defineStore('CRUD', () => {
+export const useOrderStore = defineStore('order', () => {
   const token = localStorage.getItem("token");
 
   const alldata      = ref([]);

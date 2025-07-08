@@ -2,7 +2,7 @@ import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-export const useAdminStore = defineStore('CRUD', () => {
+export const useAdminStore = defineStore('admin', () => {
   const token = localStorage.getItem("token");
   const alladmins = ref([]);
   const adminId = ref([]);

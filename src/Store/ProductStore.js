@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { usetoast } from './Toast';
 
-export const useProductStore = defineStore('CRUD', () => {
+export const useProductStore = defineStore('product', () => {
   const productsdata = ref([]);   //all product   
   const product = ref(null);    // one product 
   const status = ref('idle');   // status 
