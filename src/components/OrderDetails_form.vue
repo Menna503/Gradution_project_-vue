@@ -195,7 +195,7 @@ onMounted(async () => {
             class="text-primary font-weight-regular mb-4"
             style="font-size: 24px"
           >
-            Pricing and Status
+            Pricing
           </h1>
           <div class="d-flex justify-space-between" style="gap: 20px">
             <div class="d-flex flex-column" style="width: 50%">
@@ -214,7 +214,7 @@ onMounted(async () => {
               />
             </div>
 
-            <div class="d-flex flex-column" style="width: 50%">
+            <!-- <div class="d-flex flex-column" style="width: 50%">
               <label
                 class="my-label text-body-1 font-weight-semibold"
                 style="margin-bottom: -16px; background-color: white"
@@ -227,7 +227,7 @@ onMounted(async () => {
                 variant="outlined"
                 required
               />
-            </div>
+            </div> -->
           </div>
         </v-card-text>
       </div>
