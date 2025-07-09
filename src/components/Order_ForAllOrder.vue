@@ -1,4 +1,18 @@
 <script setup>
+// import { watchEffect } from "vue";
+
+// watchEffect(() => {
+//   if (item?.items?.length) {
+//     item.items.forEach((productItem) => {
+//       console.log("🔹 Image:", productItem.product?.images?.[0]);
+//       console.log("🔹 Size:", productItem.size);
+//       console.log("🔹 Color:", productItem.color);
+//       console.log("🔹 Quantity:", productItem.quantity);
+//       console.log("------");
+//     });
+//   }
+// });
+
 const props = defineProps({
   item: Object,
 });
@@ -21,51 +35,82 @@ const props = defineProps({
 
     <v-slide-group show-arrows>
       <v-slide-group-item
-  v-for="productItem in item.items"
-  :key="productItem._id"
->
-  <div
-    class="rounded-lg pa-3 d-flex flex-column justify-center align-center mx-4 bg-success"
-    style="gap: 8px; width: 260px"
-  >
-    <span style="font-weight: 400; font-size: 18px; color: #333333">
-      {{ productItem.product?.name || "No product name" }}
-    </span>
+        v-for="productItem in item.items"
+        :key="productItem._id"
+      >
+        <div
+          class="rounded-lg pa-3 d-flex flex-column justify-center align-center mx-4 bg-success"
+          style="gap: 8px; width: 260px"
+        >
+          <span style="font-weight: 400; font-size: 18px; color: #333333">
+            {{ productItem.product?.name || "No product name" }}
+          </span>
 
-    <!-- ✅ عرض الصورة فقط إذا كانت موجودة -->
-    <v-img
-      v-if="productItem.product?.images?.[0]"
-      :src="productItem.product.images[0]"
-      alt="Product Image"
-      class="image-placeholder"
-      style="border-radius: 8px"
-      cover
-      height="150"
-      width="260"
-    />
+          <!-- ✅ عرض الصورة فقط إذا كانت موجودة -->
+          <v-img
+            v-if="productItem.product?.imageUrl"
+            :src="productItem.product?.imageUrl"
+            alt="Product Image"
+            class="image-placeholder"
+            style="border-radius: 8px"
+            cover
+            height="150"
+            width="260"
+          />
 
-    <!-- ❌ لو مفيش صورة، ممكن تعرضي Placeholder أو تسيبيها فاضية -->
-    <div v-else style="height: 150px; width: 260px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-      <span style="color: #888;">No Image</span>
-    </div>
+          <!-- ❌ لو مفيش صورة، ممكن تعرضي Placeholder أو تسيبيها فاضية -->
+          <div
+            v-else
+            style="
+              height: 150px;
+              width: 260px;
+              background: #eee;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 8px;
+            "
+          >
+            <span style="color: #888">No Image</span>
+          </div>
 
-    <div class="d-flex" style="gap: 4px">
-      <v-chip variant="outlined" class="pa-3 bg-white" style="border: 1px solid #c0c0c0">
-        {{ productItem.size }}
-      </v-chip>
-      <v-chip variant="outlined" class="pa-3 bg-white" style="border: 1px solid #c0c0c0">
-        {{ productItem.color }}
-      </v-chip>
-      <v-chip variant="outlined" class="pa-3 bg-white" style="border: 1px solid #c0c0c0">
-        {{ productItem.quantity }}
-      </v-chip>
-      <v-chip variant="outlined" class="pa-3 bg-white" style="border: 1px solid #c0c0c0">
-        {{ productItem.totalPriceItems }} EGP
-      </v-chip>
-    </div>
-  </div>
-</v-slide-group-item>
-
+          <div class="d-flex" style="gap: 4px">
+            <v-chip
+              v-if="productItem.size"
+              variant="outlined"
+              class="pa-3 bg-white"
+              style="border: 1px solid #c0c0c0"
+            >
+              {{ productItem.size }}
+            </v-chip>
+            <v-chip
+              v-if="
+                productItem.product?.color &&
+                productItem.product.color.length > 0
+              "
+              variant="outlined"
+              class="pa-3 bg-white"
+              style="border: 1px solid #c0c0c0"
+            >
+              {{ productItem.product?.color[0] }}
+            </v-chip>
+            <v-chip
+              variant="outlined"
+              class="pa-3 bg-white"
+              style="border: 1px solid #c0c0c0"
+            >
+              {{ productItem.quantity }}
+            </v-chip>
+            <v-chip
+              variant="outlined"
+              class="pa-3 bg-white"
+              style="border: 1px solid #c0c0c0"
+            >
+              {{ productItem.totalPriceItems }} EGP
+            </v-chip>
+          </div>
+        </div>
+      </v-slide-group-item>
     </v-slide-group>
   </div>
 </template>
