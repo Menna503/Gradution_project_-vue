@@ -90,10 +90,8 @@ The most crucial change is within the `onMounted` hook, where `await nextTick()`
             variant="outlined"
             placeholder="Choose a color"
             :rules="[
-              (v) => !!v || 'This field is required',
-              (v) =>
-                /^[A-Za-z\s]+$/.test(v) ||
-                'Only letters and spaces are allowed',
+              
+              
             ]"
           />
 
@@ -106,7 +104,7 @@ The most crucial change is within the `onMounted` hook, where `await nextTick()`
             v-model="Product_Material"
             id="Product_Material"
             :rules="[
-              (v) => !!v || 'This field is required',
+             
               (v) =>
                 /^[A-Za-z\s]+$/.test(v) ||
                 'Only letters and spaces are allowed',
@@ -417,7 +415,7 @@ import { usetoast } from "../Store/Toast.js";
 import axios from "axios";
 
 // Available brand options for selection
-const brandOptions = ["Nike", "Adidas", "Puma", "Reebok", "Under Armour"];
+const brandOptions = ["Nike", "Adidas", "Nileton", "Mesery", "Swanson","Solgar","PUMA","decathlon","PowerMax"];
 
 // Available sizes for products
 const clothingSizes = ["S", "M", "L", "XL", "XXL"];
@@ -595,11 +593,11 @@ const brandValid = computed(
 );
 const materialValid = computed(
   () =>
-    Product_Material.value.trim() !== "" &&
+    Product_Material.value.trim() === "" || // Allow empty string
     /^[A-Za-z\s]+$/.test(Product_Material.value)
 );
 const colorsValid = computed(
-  () => !!colors.value && /^[A-Za-z\s]+$/.test(colors.value)
+  () => !colors.value || colors.value.length === 0 || /^[A-Za-z\s]+$/.test(colors.value)
 );
 
 // Sizes validation: only required if NOT Supplement/Equipment category
@@ -633,8 +631,8 @@ const isFormValid = computed(
   () =>
     nameValid.value &&
     brandValid.value &&
-    materialValid.value &&
-    colorsValid.value &&
+   // materialValid.value &&
+    //colorsValid.value &&
     categoryValid.value &&
     priceValid.value &&
     hasImage.value &&
@@ -890,7 +888,7 @@ async function submitForm() {
     name: Product_Name.value,
     brand: Brand_Name.value,
     price: Number(Product_Price.value),
-    color: [...colors.value], // Ensure colors is an array
+    color: colors.value,
     material: Product_Material.value,
     category:
       typeof SelectedCategory.value === "object" // Handle if category object is passed instead of just ID
