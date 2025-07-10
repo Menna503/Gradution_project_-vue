@@ -214,7 +214,7 @@ onMounted(async () => {
               />
             </div>
 
-            <!-- <div class="d-flex flex-column" style="width: 50%">
+             <div class="d-flex flex-column" style="width: 50%">
               <label
                 class="my-label text-body-1 font-weight-semibold"
                 style="margin-bottom: -16px; background-color: white"
@@ -222,12 +222,14 @@ onMounted(async () => {
               >
               <v-text-field
                 ref="status"
+                disabled
                 v-model="status"
                 style="font-weight: 600"
                 variant="outlined"
                 required
               />
-            </div> -->
+            </div> 
+            
           </div>
         </v-card-text>
       </div>

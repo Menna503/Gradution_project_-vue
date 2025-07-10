@@ -1,4 +1,4 @@
-<!-- Parent.vue -->
+
 <script setup>
 import Templatepage from "../components/Templatepage.vue";
 import Paginationtable from "../components/Paginationtable.vue";
@@ -12,7 +12,7 @@ import { usePagination } from "../main/Pagination";
 import { ref, onBeforeMount, onMounted } from "vue";
 import Addnewadmin from "./Addnewadmin.vue";
 const admincolumnsName = ref([
-  { name: "_id", label: "Id" },
+  //  { name: "_id", label: "Id" },
   { name: "firstName", label: "First Name" },
   { name: "lastName", label: "Last Name" },
   { name: "email", label: "Email" },
@@ -34,6 +34,10 @@ function handleClick(id) {
   adminStore.updateadminIdm(id, admin);
   adminStore.fetchproduct();
 }
+
+function onAdminAdded() {
+  paginationdata.page.value = 1; 
+}
 </script>
 
 <template>
@@ -48,7 +52,7 @@ function handleClick(id) {
       </template>
       <template #parttwo>
         <div class="d-flex justify-end bg-success">
-          <Addnewadmin />
+         <Addnewadmin @admin-added="onAdminAdded" />
         </div>
       </template>
       <template #partthree>

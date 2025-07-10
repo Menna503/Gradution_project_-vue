@@ -29,12 +29,10 @@ const OrdercolumnsName = ref([
 ]);
 const filteroption = ref([
   { name: "", title: "All" },
-  { name: "pending", title: "pending" },
-  { name: "shipping", title: "shipping" },
-    { name: "Delivered", title: "Delivered" },
-      { name: "Cancelled", title: "Cancelled" }
-
-
+  { name: "processing", title: "processing" },
+  { name: "shipped", title: "shipped" },
+  { name: "delivered", title: "delivered" },
+  
 ]);
 const fields = ["firstName", "lastName", "status"];
 
@@ -57,14 +55,14 @@ onMounted(() => {
   console.log("Data fetched on mount:");
 });
 watch([searchterm, Filterterm], () => {
-  ordertStore.fetchOrders({ orders: Filterterm.value }).then(() => {
+  ordertStore.fetchOrders({ status: Filterterm.value }).then(() => {
     paginationdata.page.value = 1;
   });
 });
 
 async function updateOrderStatus(order) {
   try {
-    await ordertStore.updateOrderById(order._id, { status: order.status }); // ✅ بس status
+    await ordertStore.updateOrderById(order._id, { status: order.status }); 
     showtoast("Order status updated successfully", "success");
   } catch (err) {
     showtoast("Failed to update order status", "error");

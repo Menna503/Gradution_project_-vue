@@ -28,7 +28,7 @@ import Primarybutton from '../components/Primarybutton.vue';
       </v-col>
       <v-col order="12"  cols="5" >
         <v-sheet class="  pa-0">
-       <DropList/>
+       <!-- <DropList/> -->
         </v-sheet>
       </v-col>
       <v-col order="1"  cols="2"    class="d-flex  ">

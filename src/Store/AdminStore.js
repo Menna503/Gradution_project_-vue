@@ -37,23 +37,26 @@ export const useAdminStore = defineStore('admin', () => {
     }
   };
 
-  // add product
-  const addadminIdm = async product => {
+  // add admin
+ const addadminIdm = async (product) => {
+  try {
     const response = await axios.post(`/api/admins`, product, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    if (response.status === 201) {
-      console.log('Product added successfully');
-      alladmins.value.push(response.data.data.Admins);
-            console.log(response.data);
+   if (response.status === 201) {
+  console.log("Admin added successfully");
+  await fetchproduct(); 
+}
 
-
-    }
     return response;
-  };
+  } catch (error) {
+    console.error("Error adding admin:", error);
+    throw error;
+  }
+};
   
 
   return {

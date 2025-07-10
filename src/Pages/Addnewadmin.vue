@@ -151,8 +151,8 @@
     </div>
   </v-card-text>
 </template>
-
 <script setup>
+const emit = defineEmits(["admin-added"]);
 import { ref, watch } from "vue";
 import {
   VBtn,
@@ -175,7 +175,7 @@ const emailadmin = ref("");
 const password = ref("");
 const role = ref("admin");
 
-// تهيئة الحقول عند كل فتح للدياك로그
+
 function clearFields() {
   firstName.value = "";
   lastName.value = "";
@@ -188,7 +188,7 @@ function onDialogToggle(val) {
   dialog.value = val;
 }
 
-function saveProfile() {
+async function saveProfile() {
   const payload = {
     firstName: firstName.value,
     lastName: lastName.value,
@@ -196,10 +196,16 @@ function saveProfile() {
     password: password.value,
     role: role.value,
   };
-  dialog.value = false;
-  AdminStore.addadminIdm;
-  AdminStore.addadminIdm(payload);
-  AdminStore.fetchproduct();
-  console.log("updated data sucessfully");
+
+  try {
+    await AdminStore.addadminIdm(payload); 
+    dialog.value = false;
+    clearFields();
+    emit("admin-added");
+  } catch (error) {
+    console.error("Failed to save profile:", error);
+  }
 }
+
+
 </script>

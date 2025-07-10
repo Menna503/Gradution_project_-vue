@@ -368,7 +368,7 @@ The most crucial change is within the `onMounted` hook, where `await nextTick()`
                 v-model="Product_Price"
                 variant="outlined"
                 placeholder="Enter Product Price"
-                suffix="EGP"
+                suffix="$"
                 persistent-suffix
                 type="number"
                 style="height: 56px"

@@ -1,17 +1,4 @@
 <script setup>
-// import { watchEffect } from "vue";
-
-// watchEffect(() => {
-//   if (item?.items?.length) {
-//     item.items.forEach((productItem) => {
-//       console.log("🔹 Image:", productItem.product?.images?.[0]);
-//       console.log("🔹 Size:", productItem.size);
-//       console.log("🔹 Color:", productItem.color);
-//       console.log("🔹 Quantity:", productItem.quantity);
-//       console.log("------");
-//     });
-//   }
-// });
 
 const props = defineProps({
   item: Object,
@@ -29,7 +16,7 @@ const props = defineProps({
         {{ item.items?.length }} Items
       </h6>
       <h6 class="text-primary font-weight-regular" style="font-size: 20px">
-        Total Price :{{ item.totalPriceOrder }} EGP
+        Total Price :{{ item.totalPriceOrder }} $
       </h6>
     </div>
 
@@ -46,7 +33,7 @@ const props = defineProps({
             {{ productItem.product?.name || "No product name" }}
           </span>
 
-          <!-- ✅ عرض الصورة فقط إذا كانت موجودة -->
+          
           <v-img
             v-if="productItem.product?.imageUrl"
             :src="productItem.product?.imageUrl"
@@ -58,7 +45,7 @@ const props = defineProps({
             width="260"
           />
 
-          <!-- ❌ لو مفيش صورة، ممكن تعرضي Placeholder أو تسيبيها فاضية -->
+          
           <div
             v-else
             style="
@@ -106,7 +93,7 @@ const props = defineProps({
               class="pa-3 bg-white"
               style="border: 1px solid #c0c0c0"
             >
-              {{ productItem.totalPriceItems }} EGP
+              {{ productItem.totalPriceItems }} $
             </v-chip>
           </div>
         </div>
