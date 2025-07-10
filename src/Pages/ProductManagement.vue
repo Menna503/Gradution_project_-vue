@@ -32,10 +32,10 @@ const searchterm = ref("");
 const Filterterm = ref("");
 const filteroption = ref([
   { name: "", title: "All" },
-  { name: "cloth", title: "cloth" },
+  { name: "clothes", title: "clothes" },
   { name: "shoes", title: "shoes" },
-  { name: "glasses", title: "glasses" },
-  { name: "bags", title: "bags" },
+  { name: "equipment", title: "equipment" },
+  { name: "supplement", title: "supplement" },
 ]);
 
 const fields = ["name", "category", "brand"];
