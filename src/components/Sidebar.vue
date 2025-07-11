@@ -92,14 +92,14 @@ onMounted(() => {
             <v-list-item-title class="text-body-2 text-success">Product Management</v-list-item-title>
           </v-list-item>
             <!-- Admins -->
-            <v-list-item to="/admins" value="dmins " class="mt-4 justify-center align-center pa-0 ">
+          <!--  <v-list-item to="/admins" value="dmins " class="mt-4 justify-center align-center pa-0 ">
             <template #prepend>
               <v-list-item-icon class="px-4">
                 <v-icon color="success" size="32" >mdi-shield-account-outline</v-icon>
               </v-list-item-icon>
             </template>
             <v-list-item-title class="text-body-2 text-success">Admins </v-list-item-title>
-          </v-list-item>
+          </v-list-item> -->
         <!-- profile -->
         <v-list-item to="/profile" value="Profile" class="mt-4 justify-center align-center pa-0 ">
             <template #prepend>

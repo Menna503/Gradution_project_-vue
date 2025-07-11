@@ -24,7 +24,7 @@ const Customercolumns = ref([
   { name: "lastName", label: "Last Name" },
   { name: "email", label: "Email" },
   { name: "role", label: "Role" },
-  { name: "status", label: "Status" },
+ // { name: "status", label: "Status" },
   { name: "Orders", label: "Orders" },
  
 ]);
